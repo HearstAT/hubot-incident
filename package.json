@@ -1,0 +1,38 @@
+{
+  "name": "hubot-incident",
+  "description": "Incident coordination for Hubot",
+  "version": "0.1.0",
+  "author": "Aaron Blythe <aaron.blythe@gmail.com>",
+  "license": "Apache 2.0",
+  "keywords": [
+    "hubot",
+    "hubot-scripts",
+    "pagerduty"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aaronblythe/hubot-incident.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aaronblythe/hubot-incident/issues"
+  },
+  "dependencies": {
+    "github": "~0.2.4"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.7",
+    "mocha": "*",
+    "chai": "*",
+    "sinon-chai": "*",
+    "sinon": "*",
+    "grunt-mocha-test": "~0.7.0",
+    "grunt-release": "~0.6.0",
+    "matchdep": "~0.1.2",
+    "grunt-contrib-watch": "~0.5.3"
+  },
+  "main": "index.coffee",
+  "scripts": {
+    "test": "grunt test",
+    "bootstrap": "bootstrap"
+  }
+}
