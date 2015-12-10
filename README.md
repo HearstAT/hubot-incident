@@ -1,5 +1,5 @@
 # hubot-incident
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]u [![Coverage Status][coveralls-image]][coveralls-url]
 
 Incident coordination for [Hubot](https://hubot.github.com)
 
@@ -30,11 +30,11 @@ We're mimicking the [hubot-pager-me](https://github.com/hubot-scripts/hubot-page
 ## Development
 
 ## Resources
-* [hubot-pager-me](https://github.com/hubot-scripts/hubot-pager-me)
+* [hubot-pager-me](https://github.com/hubot-scripts/hubot-piager-me)
 
 [npm-url]: https://www.npmjs.org/package/hubot-incident
 [npm-image]: http://img.shields.io/npm/v/hubot-incident.svg?style=flat
-[travis-url]: https://travis-ci.org/TheFynx/hubot-incident
-[travis-image]: https://travis-ci.org/TheFynx/hubot-incident.svg?branch=master
+[travis-url]: https://travis-ci.org/hearstat/hubot-incident
+[travis-image]: https://travis-ci.org/hearstat/hubot-incident.svg?branch=master
 [coveralls-url]: https://coveralls.io/r/hearstat/hubot-incident
 [coveralls-image]: http://img.shields.io/coveralls/hearstat/hubot-incident/master.svg?style=flat
