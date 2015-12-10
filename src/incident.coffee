@@ -30,14 +30,14 @@ module.exports = (robot) ->
   robot.respond /incident (start|initiate)/i, (msg) ->
     # Probably set to the brain via the notify portion of the bot in non-hacky version
     robot.brain.set 'incidentNumber', 8675309
-    robot.brain.get('incidentNumber')
+    incidentNumber = robot.brain.get('incidentNumber')
     msg.send "INCIDENT NOTIFY: Incident #{incidentNumber} has been started"
 
   robot.respond /incident (ack|acknowledge)/i, (msg) ->
-    robot.brain.get('incidentNumber')
+    incidentNumber = robot.brain.get('incidentNumber')
     msg.send "INCIDENT NOTIFY: Acknowledged incident #{incidentNumber}"
 
   robot.respond /incident (end|resolve)/i, (msg) ->
-    robot.brain.get('incidentNumber')
+    incidentNumber = robot.brain.get('incidentNumber')
     msg.send "INCIDENT NOTIFY: Resolved incident #{incidentNumber}"
 
