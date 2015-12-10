@@ -3,7 +3,7 @@
   "description": "Incident coordination for Hubot",
   "version": "0.1.0",
   "author": "Aaron Blythe <aaron.blythe@gmail.com>",
-  "license": "Apache 2.0",
+  "license": "MIT",
   "keywords": [
     "hubot",
     "hubot-scripts",
@@ -18,22 +18,18 @@
   },
   "dependencies": {
     "github": "~0.2.4"
+    "coffee-script": "~1.6",
   },
   "devDependencies": {
-    "coffee-script": "~1.7",
-    "mocha": "*",
-    "chai": "*",
-    "sinon-chai": "*",
-    "sinon": "*",
-    "grunt-mocha-test": "~0.7.0",
-    "grunt-release": "~0.6.0",
-    "matchdep": "~0.1.2",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-cli": "~0.1.13"
-  },
+    "mocha": "~1.14.0",
+    "chai": "~1.8.1",
+    "sinon-chai": "~2.4.0",
+    "sinon": "~1.7.3"
+  }
+
   "main": "index.coffee",
+
   "scripts": {
-    "test": "grunt test",
-    "bootstrap": "bootstrap"
+    "test": "script/test"
   }
 }

@@ -10,4 +10,3 @@ module.exports = (robot, scripts) ->
           robot.loadFile(scriptsPath, script) if script in scripts
         else
           robot.loadFile(scriptsPath, script)
-          

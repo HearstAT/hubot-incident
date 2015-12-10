@@ -14,4 +14,3 @@ describe 'incident', ->
 
   it 'compiles', ->
     true
-    
