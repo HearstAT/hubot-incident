@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "github": "~0.2.4",
-    "coffee-script": "~1.6"
+    "coffee-script": "~1.6",
+    "moment": "~2.10.6"
   },
   "devDependencies": {
     "mocha": "~1.14.0",

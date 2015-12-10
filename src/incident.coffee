@@ -31,7 +31,7 @@ module.exports = (robot) ->
     # Probably set to the brain via the notify portion of the bot in non-hacky version
     robot.brain.set 'incidentNumber', 8675309
     incidentNumber = robot.brain.get('incidentNumber')
-    time = Math.floor(new Date() / 1000)
+    time = moment().format('MMMM Do YYYY, h:mm:ss a')
     msg.send "INCIDENT NOTIFY: Incident #{incidentNumber} has been started"
     msg.emote "creates gitbucket repo for incident #{incidentNumber}"
     msg.emote "creates leankit card for incident #{incidentNumber}"
