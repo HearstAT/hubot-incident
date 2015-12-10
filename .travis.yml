@@ -8,9 +8,9 @@ notifications:
   email: false
 deploy:
   provider: npm
-  email: aaron.blythe@gmail.com
+  email: atat@hearst.com
   api_key:
     secure: VlfTujzSyTeD6wveKfJxD89I+XF4ir/KYh9aojg58vgVj0akNn09qjIVmqVwovftzhjutVDSAySIc7OPUiEtz8cZAB07/OmffeM4QIq2/o/p1Gl48/TKGLmopFSBAJLKOSMdJNPEYZld1eHDCjbfnhKvhKVuiCnyOJ2OOVxxovx08YrY4khr4hBGBakal7QYRorem0TbkTPTE522Ib17lBPleffP5J/LiNAJ3H0Sy8xSBdNFMcgtG6jEBFX9vmpJ9Cxlqop80QTtCnt4iR4F6onMVnbMkLEd3ehyEqIKHfIuAKPlTV2VdG9pDqFFOAtVP4KSGxTlJiQ1rRCJzIHRZYRncMMR+DMjJ5PwOfOKrUO8S+LDswKiuEfbEWZZDhh3LSEjUMTMwdjxa0RlhVyNmVeaKsJbspuE3Ujjff+cNjOENDNVinLDrtHvWkUw26n9K++bLYu5gNRVS1RZ1OWzKHc0chAi9yFdYUVnAZuEhaKQEKTLHnrZpNhhOhPQG8F23H98e02A/xSIeNeG++SvHu18Ul0nuiXfST1gXWL4DJhi/ixeHu/Ef/U+h77aqWeeIobfenDqCQKI3ydR4ee1GjiI31wCnckBaZr7CDZTTCSSXEiPvc+7oS9i0G0VN41Q7P64/zIZ8+etuK3f5E02fXHUkv2xaBvTv/zZejt/03I=
   on:
     tags: true
-    repo: aaronblythe/hubot-incident
+    repo: hearstat/hubot-incident
