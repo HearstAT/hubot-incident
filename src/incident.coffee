@@ -46,3 +46,8 @@ module.exports = (robot) ->
     incidentNumber = robot.brain.get('incidentNumber')
     msg.send "INCIDENT NOTIFY: Resolved incident #{incidentNumber}"
 
+  robot.respond /incident help/i, (msg) ->
+    commands = robot.helpCommands()
+    commands = (command for command in commands when command.match(/incident/))
+    msg.send commands.join("\n")
+
