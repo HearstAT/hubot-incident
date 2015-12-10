@@ -2,7 +2,7 @@
   "name": "hubot-incident",
   "description": "Incident coordination for Hubot",
   "version": "0.1.1",
-  "author": "Aaron Blythe <aaron.blythe@gmail.com>",
+  "author": "Hearst Automation Team <atat@hearst.com>",
   "license": "MIT",
   "keywords": [
     "hubot",
@@ -11,10 +11,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/aaronblythe/hubot-incident.git"
+    "url": "git://github.com/HearstAT/hubot-incident.git"
   },
   "bugs": {
-    "url": "https://github.com/aaronblythe/hubot-incident/issues"
+    "url": "https://github.com/HearstAT/hubot-incident/issues"
   },
   "dependencies": {
     "github": "~0.2.4",

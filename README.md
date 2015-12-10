@@ -34,7 +34,7 @@ We're mimicking the [hubot-pager-me](https://github.com/hubot-scripts/hubot-page
 
 [npm-url]: https://www.npmjs.org/package/hubot-incident
 [npm-image]: http://img.shields.io/npm/v/hubot-incident.svg?style=flat
-[travis-url]: https://travis-ci.org/hearstat/hubot-incident
-[travis-image]: https://travis-ci.org/hearstat/hubot-incident.svg?branch=master
-[coveralls-url]: https://coveralls.io/r/hearstat/hubot-incident
-[coveralls-image]: http://img.shields.io/coveralls/hearstat/hubot-incident/master.svg?style=flat
+[travis-url]: https://travis-ci.org/HearstAT/hubot-incident
+[travis-image]: https://travis-ci.org/HearstAT/hubot-incident.svg?branch=master
+[coveralls-url]: https://coveralls.io/r/HearstAT/hubot-incident
+[coveralls-image]: http://img.shields.io/coveralls/HearstAT/hubot-incident/master.svg?style=flat
