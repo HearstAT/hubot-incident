@@ -20,7 +20,7 @@
 #   Aaron Blythe
 #   Levi Smith
 
-
+moment = require('moment')
 #GitHubApi = require "github"
 
 module.exports = (robot) ->
