@@ -22,6 +22,7 @@
 
 moment = require('moment')
 #GitHubApi = require "github"
+checklists = require('./documentation/checklist_md')
 
 module.exports = (robot) ->
 #  ghToken       = process.env.HUBOT_GITHUB_TOKEN
@@ -37,6 +38,12 @@ module.exports = (robot) ->
     msg.emote "creates gitbucket repo for incident #{incidentNumber}"
     msg.emote "creates leankit card for incident #{incidentNumber}"
     msg.emote "has started logging all conversation in this room as of #{time}"
+    checklists.getChecklist 'start', (err, content) ->
+      if err?
+        robot.emit 'error', err, msg
+        return
+      msg.send formatMarkDown(content)
+
 
   robot.respond /incident (ack|acknowledge)/i, (msg) ->
     incidentNumber = robot.brain.get('incidentNumber')
@@ -45,9 +52,21 @@ module.exports = (robot) ->
   robot.respond /incident (end|resolve)/i, (msg) ->
     incidentNumber = robot.brain.get('incidentNumber')
     msg.send "INCIDENT NOTIFY: Resolved incident #{incidentNumber}"
+    checklists.getChecklist 'end', (err, content) ->
+      if err?
+        robot.emit 'error', err, msg
+        return
+      msg.send formatMarkDown(content)
 
   robot.respond /incident help/i, (msg) ->
     commands = robot.helpCommands()
     commands = (command for command in commands when command.match(/incident/))
     msg.send commands.join("\n")
 
+
+
+  formatMarkDown = (content) ->
+    block = "```\n"
+    block += content
+    block += "```\n"
+    block
