@@ -18,12 +18,9 @@ Then add **hubot-incident** to your `external-scripts.json`:
 ```
 
 ## Configuration
-We're mimicking the [hubot-pager-me](https://github.com/hubot-scripts/hubot-pager-me) configuration so both can be utilized together.
 
-* HUBOT_PAGERDUTY_SUBDOMAIN - Your account subdomain
-* HUBOT_PAGERDUTY_USER_ID - The user id of a PagerDuty user for your bot. This is only required if you want chat users to be able to trigger incidents without their own PagerDuty user
-* HUBOT_PAGERDUTY_API_KEY - Get one from https://<your subdomain>.pagerduty.com/api_keys
-* HUBOT_PAGERDUTY_SERVICE_API_KEY - Service API Key from a 'General API Service'. This should be assigned to a dummy escalation policy that doesn't actually notify, as hubot will trigger on this before reassigning it
+* `HUBOT_INCIDENT_START_CHECKLIST_URL` - URL to a checklist for the start of an incident in markdown (will default to checklist in this project)
+* `HUBOT_INCIDENT_END_CHECKLIST_URL` - URL to a checklist for the start of an incident in markdown (will default to checklist in this project)
 
 ## Interaction/Process
 
