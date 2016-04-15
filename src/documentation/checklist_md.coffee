@@ -1,7 +1,7 @@
 HttpClient = require 'scoped-http-client'
 
-StartChecklistURL = process.env.HUBOT_INCIDENT_START_CHECKLIST_URL or= 'https://raw.githubusercontent.com/HearstAT/hubot-incident/checklists/checklists/start.md'
-EndChecklistURL = process.env.HUBOT_INCIDENT_END_CHECKLIST_URL or='https://raw.githubusercontent.com/HearstAT/hubot-incident/checklists/checklists/end.md'
+StartChecklistURL = process.env.HUBOT_INCIDENT_START_CHECKLIST_URL or= 'https://raw.githubusercontent.com/HearstAT/hubot-incident/master/checklists/start.md'
+EndChecklistURL = process.env.HUBOT_INCIDENT_END_CHECKLIST_URL or='https://raw.githubusercontent.com/HearstAT/hubot-incident/master/checklists/end.md'
 
 module.exports =
   http: (path) ->
