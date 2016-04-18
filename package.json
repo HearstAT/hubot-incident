@@ -1,7 +1,7 @@
 {
   "name": "hubot-incident",
   "description": "Incident coordination for Hubot",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "Hearst Automation Team <atat@hearst.com>",
   "license": "MIT",
   "keywords": [
@@ -26,7 +26,8 @@
     "mocha": "~1.14.0",
     "chai": "~1.8.1",
     "sinon-chai": "~2.4.0",
-    "sinon": "~1.7.3"
+    "sinon": "~1.7.3",
+    "hubot-test-helper": "~1.4"
   },
   "main": "index.coffee",
   "scripts": {

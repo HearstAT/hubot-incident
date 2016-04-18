@@ -30,7 +30,7 @@ pdServiceEmail = process.env.HUBOT_INCIDENT_PAGERDUTY_SERVICE_EMAIL
 pdTestEmail = process.env.HUBOT_PAGERDUTY_TEST_EMAIL
 
 module.exports = (robot) ->
-  if robot.brain.data.openincidents == null
+  unless robot.brain.data.openincidents?
     robot.brain.data.openincidents = {}
 
   # This is invoked by the Slack/Hubot integration here:
@@ -40,8 +40,9 @@ module.exports = (robot) ->
     # TODO: work on auth so only the PagerDuty bot is responded to
     incidentNumber = msg.match[1]
     incidentHash = buildIncidentHash(incidentNumber,msg.match[2])
+    robot.brain.data.openincidents[incidentNumber] = incidentHash
     msg.send "INCIDENT NOTIFY: Incident #{incidentNumber} has been started"
-    msg.emote "Bot has started logging all conversation in this room as of #{incidentHash['start_time']}"
+    msg.emote "Bot has started logging all conversation in this room as of #{robot.brain.data.openincidents[incidentNumber]['start_time']}"
     checklists.getChecklist 'start', (err, content) ->
       if err?
         robot.emit 'error', err, msg
@@ -49,9 +50,9 @@ module.exports = (robot) ->
       msg.send formatMarkDown(content)
 
   # helper function to show this works, should be removed when debugging is done
-  robot.respond /incident log (\d+)/i, (msg) ->
-    incidentHash = robot.brain.data.openincidents[msg.match[1]]
-    msg.send incidentHash['log']
+  #robot.respond /incident log (\d+)/i, (msg) ->
+  #  incidentHash = robot.brain.data.openincidents[msg.match[1]]
+  #  msg.send incidentHash['log']
 
   robot.hear /Resolved: Incident #(\d+) \(([A-Z0-9]+)\)/, (msg) ->
     # TODO: work on auth so only the PagerDuty bot is responded to
@@ -79,8 +80,9 @@ module.exports = (robot) ->
       robot.brain.data.openincidents[k]['log'] += "#{getCurrentTime()}  #{msg.message.user.name} #{msg.message.text} \n"
 
   buildIncidentHash = (incidentNumber, urlId) ->
-    robot.brain.data.openincidents[incidentNumber] = {}
-    incidentHash = robot.brain.data.openincidents[incidentNumber]
+    #robot.brain.data.openincidents[incidentNumber] = {}
+    #incidentHash = robot.brain.data.openincidents[incidentNumber]
+    incidentHash = {}
     incidentHash['start_time'] = getCurrentTime()
     incidentHash['end_time'] = ""
     incidentHash['url'] = urlId
