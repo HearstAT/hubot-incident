@@ -1,7 +1,7 @@
 {
   "name": "hubot-incident",
   "description": "Incident coordination for Hubot",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Hearst Automation Team <atat@hearst.com>",
   "license": "MIT",
   "keywords": [
