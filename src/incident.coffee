@@ -38,12 +38,7 @@ module.exports = (robot) ->
   unless robot.brain.data.openincidents?
     robot.brain.data.openincidents = {}
 
-  if incidentEndpoint && incidentRoom
-    robot.router.post incidentEndpoint, (req, res) ->
-      robot.messageRoom(incidentRoom, parseWebhook(req,res))
-      res.end()
-
-  robot.respond /start (\d+)/i, (msg) ->
+  robot.respond /incident start (\d+)/i, (msg) ->
     # TODO: work on auth so only the specified users are responded to
     incidentNumber = msg.match[1]
     startIncident(incidentNumber, msg)
@@ -53,14 +48,17 @@ module.exports = (robot) ->
   #  incidentHash = robot.brain.data.openincidents[msg.match[1]]
   #  msg.send incidentHash['log']
 
-  robot.respond /incident currently tracking/i, (msg) ->
+  robot.respond /incident currently tracking/, (msg) ->
+    msg.send "hello contents of my brain #{robot.brain.data.openincidents}"
+    if robot.brain.data.openincidents.length == 0
+      msg.send "No issues currently being tracked"
     for k,v of robot.brain.data.openincidents
-      msg.emote "Currently tracking PagerDuty Incident #{k} from start time #{robot.brain.data.openincidents[k]['log']}"
+      msg.send "Currently tracking PagerDuty Incident #{k} from start time #{robot.brain.data.openincidents[k]['start_time']}"
 
-  robot.respond /end (\d+)/i, (msg) ->
+  robot.respond /incident end (\d+)/i, (msg) ->
     # TODO: work on auth so only authorized users are responded to
     incidentNumber = msg.match[1]
-    endIncident(incident_number, msg)
+    endIncident(incidentNumber, msg)
   
   robot.respond /incident help/i, (msg) ->
     commands = robot.helpCommands()
@@ -70,7 +68,9 @@ module.exports = (robot) ->
   ## TODO: ensure only get the messages from the incident room
   robot.hear /(.+)/, (msg) ->
     for k,v of robot.brain.data.openincidents
-      robot.brain.data.openincidents[k]['log'] += "#{getCurrentTime()}  #{msg.message.user.name} #{msg.message.text} \n"
+      note = "#{getCurrentTime()}  #{msg.message.user.name} #{msg.message.text} \n"
+      robot.brain.data.openincidents[k]['log'] += note
+      postNoteToPagerDuty(msg,k,note)
 
   ##### Functions
 
@@ -79,12 +79,12 @@ module.exports = (robot) ->
     #is inicident being tracked yet?
     for k,v of robot.brain.data.openincidents
       if k == incidentNumber
-        mrobot.messageRoom(incidentRoom, "incident #{k} is already being tracked")
+        msg.send "incident #{k} is already being tracked"
         return
     incidentHash = buildIncidentHash(incidentNumber)
     robot.brain.data.openincidents[incidentNumber] = incidentHash
-    robot.messageRoom(incidentRoom, "INCIDENT NOTIFY: Incident #{incidentNumber} has been started")
-    robot.messageRoom(incidentRoom, "Bot has started logging all conversation in this room as of #{robot.brain.data.openincidents[incidentNumber]['start_time']}")
+    msg.send "INCIDENT NOTIFY: Incident #{incidentNumber} has been started"
+    msg.send "Bot has started logging all conversation in this room as of #{robot.brain.data.openincidents[incidentNumber]['start_time']}"
     checklists.getChecklist 'start', (err, content) ->
       if err?
         robot.emit 'error', err, msg
@@ -93,6 +93,14 @@ module.exports = (robot) ->
 
   # TODO: find a way to remove 'msg'
   endIncident = (incidentNumber, msg) ->
+    #is inicident being currently open?
+    open = false
+    for k,v of robot.brain.data.openincidents
+      if k == incidentNumber
+        open = true
+    if open == false
+      msg.send "Issue #{incidentNumber} is not currently being tracked."
+      return
     incidentHash = robot.brain.data.openincidents[incidentNumber]
     incidentHash['end_time'] = getCurrentTime()
     duration = calculateDuration(incidentHash['start_time'],incidentHash['end_time'])
@@ -140,20 +148,18 @@ module.exports = (robot) ->
 
       cb(json.users[0])
 
-  postNoteToPagerDuty = (msg, incidentNumber, incidentHash) ->
+  postNoteToPagerDuty = (msg, incidentNumber, note) ->
     if pagerduty.missingEnvironmentForApi(msg)
       #TODO: error handling
       msg.send "PagerDuty setup needs work."
     else
-      content = incidentHash['log']
-      
       getPagerDutyServiceUser msg, (user) ->
         userId = user.id
         return unless userId
 
         data =
           note:
-            content: incidentHash['log']
+            content: note
           requester_id: userId
 
         pagerduty.post "/incidents/#{incidentNumber}/notes", data, (err, json) ->
@@ -161,10 +167,10 @@ module.exports = (robot) ->
             robot.emit 'error', err, msg
             return
 
-          if json && json.note
-            msg.send "Transcript of room added to Pagerduty note since #{incidentHash['start_time']}"
-          else
-            msg.send "Sorry, could not add transcript of room to PagerDuty as note."
+          #if json && json.note
+          #  msg.send "Transcript of room added to Pagerduty note since #{incidentHash['start_time']}"
+          #else
+          #  msg.send "Sorry, could not add transcript of room to PagerDuty as note."
 
   ##### PagerDuty Webhooks
   # Pagerduty Webhook Integration (For a payload example, see http://developer.pagerduty.com/documentation/rest/webhooks)
