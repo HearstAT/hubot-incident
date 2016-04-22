@@ -32,10 +32,9 @@ checklists = require('./documentation/checklist_md')
 pagerduty = require('./pagerduty/pagerduty')
 
 # Envrionment Variables
-pdServiceEmail   = process.env.HUBOT_INCIDENT_PAGERDUTY_SERVICE_EMAIL
-pdTestEmail      = process.env.HUBOT_PAGERDUTY_TEST_EMAIL
 incidentRoom     = process.env.HUBOT_INCIDENT_PAGERDUTY_ROOM
 incidentEndpoint = process.env.HUBOT_INCIDENT_PAGERDUTY_ENDPOINT || "/incident"
+pagerDutyUserId  = process.env.HUBOT_PAGERDUTY_USER_ID
 
 
 module.exports = (robot) ->
@@ -174,21 +173,16 @@ module.exports = (robot) ->
     if typeof required is 'function'
       cb = required
       required = true
-      email  = pdServiceEmail || pdTestEmail
-    pagerduty.get "/users", {query: email}, (err, json) ->
+    pagerduty.get "/users/#{pagerDutyUserId}", (err, json) ->
       if err?
         robot.emit 'error', err, msg
         return
 
-      if json.users.length isnt 1
-        if json.users.length is 0 and not required
-          cb null
-          return
-        else
-          msg.send "Sorry, I expected to get 1 user back for #{email}, but got #{json.users.length} :sweat:. If your PagerDuty email is not #{email} use `/pager me as #{email}`"
-          return
+      if json.user.id != pagerDutyUserId
+        msg.send "Sorry, I expected to get 1 user back for #{pagerDutyUserId}, but got #{json.user.id} :sweat:. If the bot user for PagerDuty's ID is not #{pdServiceEmail} please reconfigure"
+        return
 
-      cb(json.users[0])
+      cb(json.user)
 
   postNoteToPagerDuty = (msg, incidentNumber, note) ->
     if pagerduty.missingEnvironmentForApi(msg)
