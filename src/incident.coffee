@@ -58,10 +58,10 @@ module.exports = (robot) ->
     status = msg.match[1]
     incident_count = 0
     tracking = "Currently tracking: \n"
-    if status = "resolved"
+    if status == "resolved"
       tracking = "Resolved in PagerDuty: \n"
     else if status = "closed"
-      tracking = "Closed issues stored in the brain: \n"
+      tracking == "Closed issues stored in the brain: \n"
     for k,v of robot.brain.data.incidents
       if robot.brain.data.incidents[k]['status'] == status
         tracking += "* PagerDuty Incident `#{k}` from start time `#{robot.brain.data.incidents[k]['start_time']}`\n"
