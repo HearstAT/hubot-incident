@@ -2,13 +2,19 @@
 incidentRoom       = process.env.HUBOT_INCIDENT_PAGERDUTY_ROOM
 incidentEndpoint   = process.env.HUBOT_INCIDENT_PAGERDUTY_ENDPOINT || "/incident"
 
-incident = require('../incident')
+incident_file = require('../incident')
 
 module.exports = (robot) ->
   if incidentEndpoint && incidentRoom
+    console.log "Webhooks should be configured properly.\n Incident Room: #{incidentRoom} \n Incident Endpoint: #{incidentEndpoint}"
     robot.router.post incidentEndpoint, (req, res) ->
+      # TODO: untangle this some so that when there is nothing to post do not get odd call stack in the log
       robot.messageRoom(incidentRoom, parseWebhook(req,res))
       res.end()
+  else
+    endpoint_log = "HUBOT_INCIDENT_PAGERDUTY_ENDPOINT is set to #{incidentEndpoint} \n"
+    room_log = "HUBOT_INCIDENT_PAGERDUTY_ROOM is set to #{incidentRoom}\n"
+    console.log "Either HUBOT_INCIDENT_PAGERDUTY_ROOM is not set \n #{endpoint_log} #{room_log} Please set these environment variables\n"
 
   # Pagerduty Webhook Integration (For a payload example, see http://developer.pagerduty.com/documentation/rest/webhooks)
   parseWebhook = (req, res) ->
@@ -35,23 +41,23 @@ module.exports = (robot) ->
     else
       '(???)'
 
-  generateIncidentString = (incident, hookType, message) ->
+  updateIncidentBot = (incident, hookType, message) ->
     console.log "hookType is " + hookType
     assigned_user   = getUserForIncident(incident)
     incident_number = incident.incident_number
-    timeStamp = message.data.incident.last_status_change_on
+    timestamp = message.data.incident.last_status_change_on
 
     if hookType == "incident.trigger"
-      incident.updateTimestamp(incident_number,pd_trigger_time,timestamp)
-      incident.trackIncident(incident_number, null)
+      incident_file.updateTimestamp(incident_number,"pd_trigger_time",timestamp, robot)
+      incident_file.trackIncident(incident_number, null, robot)
     else if hookType == "incident.acknowledge"
-      incident.updateTimestamp(incident_number,pd_ack_time,timestamp)
+      incident_file.updateTimestamp(incident_number,"pd_ack_time",timestamp, robot)
     else if hookType == "incident.resolve"
-      incident.updateTimestamp(incident_number,pd_resolve_time,timestamp)
-      incident.resolveIncident(incident_number, null)
+      incident_file.updateTimestamp(incident_number,"pd_resolve_time",timestamp, robot)
+      incident_file.resolveIncident(incident_number, null, robot)
     else if hookType == "incident.unacknowledge"
-      incident.updateTimestamp(incident_number,pd_unacknowledge_time,timestamp)
+      incident_file.updateTimestamp(incident_number,"pd_unacknowledge_time",timestamp, robot)
     else if hookType == "incident.assign"
-      incident.updateTimestamp(incident_number,pd_assign_time,timestamp)
+      incident_file.updateTimestamp(incident_number,"pd_assign_time",timestamp, robot)
     else if hookType == "incident.escalate"
-      incident.updateTimestamp(incident_number,pd_escalate_time,timestamp)
+      incident_file.updateTimestamp(incident_number,"pd_escalate_time",timestamp, robot)
