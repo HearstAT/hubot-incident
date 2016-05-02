@@ -1,9 +1,8 @@
 
-incidentRoom              = process.env.HUBOT_INCIDENT_PAGERDUTY_ROOM
-# Webhook listener endpoint. Set it to whatever URL you want, and make sure it matches your pagerduty service settings
-incidentEndpoint          = process.env.HUBOT_INCIDENT_PAGERDUTY_ENDPOINT || "/incident"
+incidentRoom       = process.env.HUBOT_INCIDENT_PAGERDUTY_ROOM
+incidentEndpoint   = process.env.HUBOT_INCIDENT_PAGERDUTY_ENDPOINT || "/incident"
 
-incident = require('./incident')
+incident = require('../incident')
 
 module.exports = (robot) ->
   if incidentEndpoint && incidentRoom
