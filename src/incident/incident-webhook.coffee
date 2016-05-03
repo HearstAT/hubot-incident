@@ -9,12 +9,15 @@ module.exports = (robot) ->
     console.log "Webhooks should be configured properly.\n Incident Room: #{incidentRoom} \n Incident Endpoint: #{incidentEndpoint}"
     robot.router.post incidentEndpoint, (req, res) ->
       # TODO: untangle this some so that when there is nothing to post do not get odd call stack in the log
-      robot.messageRoom(incidentRoom, parseWebhook(req,res))
+      # `TypeError: msg.replace is not a function`
+      # http://stackoverflow.com/questions/4775206/var-replace-is-not-a-function
+      #robot.messageRoom(incidentRoom, parseWebhook(req,res))
+      parseWebhook(req,res)
       res.end()
   else
     endpoint_log = "HUBOT_INCIDENT_PAGERDUTY_ENDPOINT is set to #{incidentEndpoint} \n"
     room_log = "HUBOT_INCIDENT_PAGERDUTY_ROOM is set to #{incidentRoom}\n"
-    console.log "Either HUBOT_INCIDENT_PAGERDUTY_ROOM is not set \n #{endpoint_log} #{room_log} Please set these environment variables\n"
+    console.log "Either HUBOT_INCIDENT_PAGERDUTY_ROOM or HUBOT_INCIDENT_PAGERDUTY_ENDPOINT is not set \n #{endpoint_log} \n #{room_log}\n Please set these environment variables\n"
 
   # Pagerduty Webhook Integration (For a payload example, see http://developer.pagerduty.com/documentation/rest/webhooks)
   parseWebhook = (req, res) ->
