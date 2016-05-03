@@ -19,7 +19,6 @@ pagerduty = require('./pagerduty/pagerduty')
 
 # Envrionment Variables
 incidentRoom     = process.env.HUBOT_INCIDENT_PAGERDUTY_ROOM
-incidentEndpoint = process.env.HUBOT_INCIDENT_PAGERDUTY_ENDPOINT || "/incident"
 pagerDutyUserId  = process.env.HUBOT_PAGERDUTY_USER_ID
 
 ##### Functions

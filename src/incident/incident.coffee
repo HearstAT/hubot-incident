@@ -2,25 +2,23 @@
 #  Orderly incident coordination through hubot
 #
 # Dependencies:
-#   "<module name>": "<module version>"
+#   "moment": "latest"
 #
 # Configuration:
+#   HUBOT_INCIDENT_PAGERDUTY_ROOM - room that the webhooks should go to
+#   HUBOT_INCIDENT_PAGERDUTY_ENDPOINT - for webhooks to listen default to '/incident' Set it to whatever URL you want, and make sure it is different than your pagerduty service settings
 #   HUBOT_INCIDENT_START_CHECKLIST_URL - optional (deprecated will move to dynamic list)
 #   HUBOT_INCIDENT_END_CHECKLIST_URL - optional (deprecated will move to dynamic list)
-#   HUBOT_INCIDENT_PAGERDUTY_SERVICE_EMAIL - chould be updated to use HUBOT_PAGERDUTY_USER_ID
-#   HUBOT_INCIDENT_PAGERDUTY_ROOM - room that the webhooks should go to
-#   HUBOT_INCIDENT_PAGERDUTY_ENDPOINT - for webhooks to listen default to '/incident' Set it to whatever URL you want, and make sure it matches your pagerduty service settings
-# From hubot-pager-me config
+#
+#   #From hubot-pager-me config
 #   HUBOT_PAGERDUTY_TEST_EMAIL
 #   HUBOT_PAGERDUTY_SUBDOMAIN
+#   HUBOT_PAGERDUTY_USER_ID
 #   
 # Commands:
 #   hubot incident track <pagerduty id> - Manually initiate incident
 #   hubot incident resolve <pagerduty id> - Manually resolve incident
 #   hubot incident show (open|resolved|closed) - List out the incidents currently being tracked in the hubot brain by status
-#
-# Notes:
-#   <optional notes required for the script>
 #
 # Authors:
 #   Aaron Blythe
