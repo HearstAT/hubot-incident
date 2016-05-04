@@ -5,22 +5,8 @@
 #   "<module name>": "<module version>"
 #
 # Configuration:
-#   HUBOT_INCIDENT_START_CHECKLIST_URL - optional (deprecated will move to dynamic list)
-#   HUBOT_INCIDENT_END_CHECKLIST_URL - optional (deprecated will move to dynamic list)
-#   HUBOT_INCIDENT_PAGERDUTY_SERVICE_EMAIL - chould be updated to use HUBOT_PAGERDUTY_USER_ID
-#   HUBOT_INCIDENT_PAGERDUTY_ROOM - room that the webhooks should go to
-#   HUBOT_INCIDENT_PAGERDUTY_ENDPOINT - for webhooks to listen default to '/incident' Set it to whatever URL you want, and make sure it matches your pagerduty service settings
-# From hubot-pager-me config
-#   HUBOT_PAGERDUTY_TEST_EMAIL
-#   HUBOT_PAGERDUTY_SUBDOMAIN
-#   
-# Commands:
-#   hubot incident track <pagerduty id> - Manually initiate incident
-#   hubot incident resolve <pagerduty id> - Manually resolve incident
-#   incident show (open|resolved|closed) - List out the incidents currently being tracked in the hubot brain by status
 #
 # Notes:
-#   <optional notes required for the script>
 #
 # Authors:
 #   Aaron Blythe
@@ -33,102 +19,48 @@ pagerduty = require('./pagerduty/pagerduty')
 
 # Envrionment Variables
 incidentRoom     = process.env.HUBOT_INCIDENT_PAGERDUTY_ROOM
-incidentEndpoint = process.env.HUBOT_INCIDENT_PAGERDUTY_ENDPOINT || "/incident"
 pagerDutyUserId  = process.env.HUBOT_PAGERDUTY_USER_ID
 
-
-module.exports = (robot) ->
-  unless robot.brain.data.incidents?
-    robot.brain.data.incidents = {}
-
-  robot.respond /incident track (\d+)/i, (msg) ->
-    # TODO: work on auth so only the specified users are responded to
-    incidentNumber = msg.match[1]
-    trackIncident(incidentNumber, msg)
-
-  # helper function to show this works, should be removed when debugging is done
-  robot.respond /incident contents (\d+)/i, (msg) ->
-    incidentHash = robot.brain.data.incidents[msg.match[1]]
-    data = ""
-    for k,v of incidentHash
-      data += "#{k}: #{v} \n"
-    msg.send data
-
-  robot.respond /incident show (open|resolved|closed)/, (msg) ->
-    status = msg.match[1]
-    incident_count = 0
-    tracking = "Currently tracking: \n"
-    if status == "resolved"
-      tracking = "Resolved in PagerDuty: \n"
-    else if status == "closed"
-      tracking = "Closed issues stored in the brain: \n"
-    for k,v of robot.brain.data.incidents
-      if robot.brain.data.incidents[k]['status'] == status
-        tracking += "* PagerDuty Incident `#{k}` from start time `#{robot.brain.data.incidents[k]['start_time']}`\n"
-        incident_count += 1
-    if incident_count == 0
-      msg.send "No issues currently being tracked with status `#{status}`"
-    else 
-      msg.send tracking
-
-  robot.respond /incident resolve (\d+)/i, (msg) ->
-    # TODO: work on auth so only authorized users are responded to
-    incidentNumber = msg.match[1]
-    resolveIncident(incidentNumber, msg)
-  
-  robot.respond /incident help/i, (msg) ->
-    commands = robot.helpCommands()
-    commands = (command for command in commands when command.match(/incident/))
-    msg.send commands.join("\n")
-
-  ## TODO: ensure only get the messages from the incident room
-  robot.hear /(.+)/, (msg) ->
-    for k,v of robot.brain.data.incidents
-      if robot.brain.data.incidents[k]['status'] == "open"
-        note = "#{getCurrentTime()}  #{msg.message.user.name} #{msg.message.text} \n"
-        robot.brain.data.incidents[k]['log'] += note
-        postNoteToPagerDuty(msg,k,note)
-
-  ##### Functions
-
+##### Functions
+module.exports =
   # TODO: find a way to remove 'msg'
-  trackIncident = (incidentNumber, msg) ->
+  trackIncident: (incidentNumber, msg, robot) ->
     #is inicident being tracked yet?
     for k,v of robot.brain.data.incidents
       if k == incidentNumber
-        msg.send "incident #{k} is already being tracked"
+        robot.messageRoom incidentRoom, "incident #{k} is already being tracked"
         return
     # Check that incient is open in PagerDuty
-    checkIfIncidentOpen msg, incidentNumber, 'triggered,acknowledged', (cb) ->
+    this.checkIfIncidentOpen msg, incidentNumber, 'triggered,acknowledged', robot, (cb) ->
       if cb == null
         return
       incidentHash = buildIncidentHash(incidentNumber)
       robot.brain.data.incidents[incidentNumber] = incidentHash
-      msg.send "INCIDENT NOTIFY: Incident #{incidentNumber} has been is open and is now being tracked."
-      msg.send "Bot has started logging all conversation in this room as of #{robot.brain.data.incidents[incidentNumber]['start_time']}"
+      robot.messageRoom incidentRoom, "INCIDENT NOTIFY: Incident #{incidentNumber} has been is open and is now being tracked."
+      robot.messageRoom incidentRoom, "Bot has started logging all conversation in this room as of #{robot.brain.data.incidents[incidentNumber]['start_time']}"
       checklists.getChecklist 'start', (err, content) ->
         if err?
           robot.emit 'error', err, msg
           return
-        msg.send formatMarkDown(content)
+        robot.messageRoom incidentRoom, formatMarkDown(content)
 
   # TODO: find a way to remove 'msg'
-  resolveIncident = (incidentNumber, msg) ->
+  resolveIncident: (incidentNumber, msg, robot) ->
     #is inicident being currently open?
     if robot.brain.data.incidents[incidentNumber]?['status'] != 'open'
-      msg.send "Issue #{incidentNumber} is not currently being tracked."
+      robot.messageRoom incidentRoom, "Issue #{incidentNumber} is not currently being tracked."
       return
     incidentHash = robot.brain.data.incidents[incidentNumber]
-    incidentHash['resolve_time'] = getCurrentTime()
-    duration = calculateDuration(incidentHash['start_time'],incidentHash['resolve_time'])
+    incidentHash['resolve_time'] = this.getCurrentTime()
+    duration = this.calculateDuration(incidentHash['start_time'],incidentHash['resolve_time'])
     incidentHash['duration'] = duration
-    msg.send "INCIDENT NOTIFY: Resolved incident #{incidentNumber}, Incident duration #{duration}"
+    robot.messageRoom incidentRoom, "INCIDENT NOTIFY: Resolved incident #{incidentNumber}, Incident duration #{duration}"
     incidentHash['status'] = "resolved"
     checklists.getChecklist 'end', (err, content) ->
       if err?
         robot.emit 'error', err, msg
         return
-      msg.send formatMarkDown(content)
+      robot.messageRoom incidentRoom, formatMarkDown(content)
 
     #delete robot.brain.data.incidents[incidentNumber]
 
@@ -136,10 +68,10 @@ module.exports = (robot) ->
   # Store durations in seconds
   # This makes the maths easier later
   # Use moment functions for display
-  buildIncidentHash = (incidentNumber) ->
+  buildIncidentHash: (incidentNumber) ->
     incidentHash = {}
     # bot known times
-    incidentHash['start_time'] = getCurrentTime()
+    incidentHash['start_time'] = this.getCurrentTime()
     incidentHash['ack_time']
     incidentHash['resolve_time'] = ""
     incidentHash['unacknowledge_time'] = ""
@@ -158,18 +90,23 @@ module.exports = (robot) ->
     incidentHash['log'] = ""
     incidentHash
 
-  updateTimestamp = (incidentNumber, type, timestamp) ->
-    incidentHash = robot.brain.data.incidents[incidentNumber]
-    incidentHash['type'] = timestamp
+  updateTimestamp: (incidentNumber, type, timestamp, robot) ->
+    if robot.brain.data.incidents[incidentNumber]
+      incidentHash = robot.brain.data.incidents[incidentNumber]
+      incidentHash['type'] = timestamp
+    else 
+      log_message = "Issue setting timestamp for #{type} on incident #{incidentNumber} into hubot brain"
+      console.log log_message
+      robot.messageRoom incidentRoom, log_message
 
-  formatMarkDown = (content) ->
+  formatMarkDown: (content) ->
     block = "```\n"
     block += content
     block += "```\n"
     block
 
   ##### Pager Duty interaction
-  getPagerDutyServiceUser = (msg, required, cb) ->
+  getPagerDutyServiceUser: (msg, required, robot, cb) ->
     if typeof required is 'function'
       cb = required
       required = true
@@ -179,17 +116,17 @@ module.exports = (robot) ->
         return
 
       if json.user.id != pagerDutyUserId
-        msg.send "Sorry, I expected to get 1 user back for #{pagerDutyUserId}, but got #{json.user.id} :sweat:. If the bot user for PagerDuty's ID is not #{pdServiceEmail} please reconfigure"
+        robot.messageRoom incidentRoom, "Sorry, I expected to get 1 user back for #{pagerDutyUserId}, but got #{json.user.id} :sweat:. If the bot user for PagerDuty's ID is not #{pdServiceEmail} please reconfigure"
         return
 
       cb(json.user)
 
-  postNoteToPagerDuty = (msg, incidentNumber, note) ->
+  postNoteToPagerDuty: (msg, incidentNumber, note, robot) ->
     if pagerduty.missingEnvironmentForApi(msg)
       #TODO: error handling
-      msg.send "PagerDuty setup needs work."
+      robot.messageRoom incidentRoom, "PagerDuty setup needs work."
     else
-      getPagerDutyServiceUser msg, (user) ->
+      this.getPagerDutyServiceUser msg, (user) ->
         userId = user.id
         return unless userId
 
@@ -204,11 +141,11 @@ module.exports = (robot) ->
             return
 
           #if json && json.note
-          #  msg.send "Transcript of room added to Pagerduty note since #{incidentHash['start_time']}"
+          #  robot.messageRoom incidentRoom, "Transcript of room added to Pagerduty note since #{incidentHash['start_time']}"
           #else
-          #  msg.send "Sorry, could not add transcript of room to PagerDuty as note."
+          #  robot.messageRoom incidentRoom, "Sorry, could not add transcript of room to PagerDuty as note."
 
-  checkIfIncidentOpen = (msg, incidentNumbers, statusFilter, cb) ->
+  checkIfIncidentOpen: (msg, incidentNumbers, statusFilter, robot, cb) ->
     pagerduty.getIncidents statusFilter, (err, incidents) ->
       if err?
         robot.emit 'error', err, msg
@@ -222,7 +159,7 @@ module.exports = (robot) ->
           foundIncidents.push(incident)
 
       if foundIncidents.length == 0
-        msg.send "Couldn't find incident(s) #{incidentNumbers}. Use `#{robot.name} pager incidents` for listing. \n Tracking can only be started on unresolved incidents."
+        robot.messageRoom incidentRoom, "Couldn't find incident(s) #{incidentNumbers}. Use `#{robot.name} pager incidents` for listing. \n Tracking can only be started on unresolved incidents."
         cb null
         return
       else
@@ -230,9 +167,9 @@ module.exports = (robot) ->
         return
 
   ##### Moment calculations
-  calculateDuration = (start, end) ->
+  calculateDuration: (start, end) ->
     Math.floor(moment.duration(moment(end,"YYYYMMDDTHHmmss").diff(moment(start,"YYYYMMDDTHHmmss"))).asHours())+moment.utc(moment(end,"YYYYMMDDTHHmmss").diff(moment(start,"YYYYMMDDTHHmmss"))).format(":mm:ss")
   
-  getCurrentTime = () ->
+  getCurrentTime: () ->
     now = moment()
     time = now.format('YYYY-MM-DD HH:mm:ss Z')
