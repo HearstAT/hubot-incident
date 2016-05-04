@@ -19,14 +19,16 @@ Then add **hubot-incident** to your `external-scripts.json`:
 
 ## Configuration
 
-* HUBOT_INCIDENT_START_CHECKLIST_URL - optional, defaults to this project in github (deprecated will move to dynamic list)
-* HUBOT_INCIDENT_END_CHECKLIST_URL - optional, defaults to this project in github (deprecated will move to dynamic list)
-* HUBOT_INCIDENT_PAGERDUTY_ROOM - room that the webhooks should go to
-* HUBOT_INCIDENT_PAGERDUTY_ENDPOINT - for webhooks to listen default to '/incident' Set it to whatever URL you want, and make sure it is different than your pagerduty service settings
-# From hubot-pager-me config
-* HUBOT_PAGERDUTY_TEST_EMAIL
-* HUBOT_PAGERDUTY_SUBDOMAIN
-* HUBOT_PAGERDUTY_USER_ID
+* `HUBOT_INCIDENT_START_CHECKLIST_URL` - optional, defaults to this project in github (deprecated will move to dynamic list)
+* `HUBOT_INCIDENT_END_CHECKLIST_URL` - optional, defaults to this project in github (deprecated will move to dynamic list)
+* `HUBOT_INCIDENT_PAGERDUTY_ROOM` - room that the webhooks should go to
+* `HUBOT_INCIDENT_PAGERDUTY_ENDPOINT` - for webhooks to listen default to '/incident' Set it to whatever URL you want, and make sure it is different than your pagerduty service settings
+
+From [hubot-pager-me](https://github.com/hubot-scripts/hubot-pager-me) config
+
+* `HUBOT_PAGERDUTY_SUBDOMAIN`
+* `HUBOT_PAGERDUTY_USER_ID`
+* `HUBOT_PAGERDUTY_TEST_EMAIL` - optional for testing
 
 ## Interaction/Process
 
