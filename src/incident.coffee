@@ -34,7 +34,26 @@ module.exports =
     this.checkIfIncidentOpen msg, incidentNumber, 'triggered,acknowledged', robot, (cb) ->
       if cb == null
         return
-      incidentHash = buildIncidentHash(incidentNumber)
+      incidentHash = {}
+      incidentHash['start_time'] = moment()
+      incidentHash['ack_time']
+      incidentHash['resolve_time'] = ""
+      incidentHash['unacknowledge_time'] = ""
+      incidentHash['assign_time'] = ""
+      incidentHash['escalate_time'] = ""
+      # pagerduty known times
+      incidentHash['pd_trigger_time'] = ""
+      incidentHash['pd_ack_time'] = ""
+      incidentHash['pd_resolve_time'] = ""
+      incidentHash['pd_unacknowledge_time'] = ""
+      incidentHash['pd_assign_time'] = ""
+      incidentHash['pd_escalate_time'] = ""
+      incidentHash['duration'] = ""
+      incidentHash['duration_seconds'] = 0
+      incidentHash['status'] = "open"
+      incidentHash['log'] = ""
+      incidentHash
+      #this.buildIncidentHash(incidentNumber, incidentHash) ->
       robot.brain.data.incidents[incidentNumber] = incidentHash
       robot.messageRoom incidentRoom, "INCIDENT NOTIFY: Incident #{incidentNumber} has been is open and is now being tracked."
       robot.messageRoom incidentRoom, "Bot has started logging all conversation in this room as of #{robot.brain.data.incidents[incidentNumber]['start_time']}"
@@ -42,7 +61,10 @@ module.exports =
         if err?
           robot.emit 'error', err, msg
           return
-        robot.messageRoom incidentRoom, formatMarkDown(content)
+        block = "```\n"
+        block += content
+        block += "```\n"
+        robot.messageRoom incidentRoom, block
 
   # TODO: find a way to remove 'msg'
   resolveIncident: (incidentNumber, msg, robot) ->
@@ -51,7 +73,7 @@ module.exports =
       robot.messageRoom incidentRoom, "Issue #{incidentNumber} is not currently being tracked."
       return
     incidentHash = robot.brain.data.incidents[incidentNumber]
-    incidentHash['resolve_time'] = this.getCurrentTime()
+    incidentHash['resolve_time'] = moment()
     duration = this.calculateDuration(incidentHash['start_time'],incidentHash['resolve_time'])
     incidentHash['duration'] = duration
     robot.messageRoom incidentRoom, "INCIDENT NOTIFY: Resolved incident #{incidentNumber}, Incident duration #{duration}"
@@ -60,7 +82,10 @@ module.exports =
       if err?
         robot.emit 'error', err, msg
         return
-      robot.messageRoom incidentRoom, formatMarkDown(content)
+      block = "```\n"
+      block += content
+      block += "```\n"
+      robot.messageRoom incidentRoom, block
 
     #delete robot.brain.data.incidents[incidentNumber]
 
@@ -68,10 +93,10 @@ module.exports =
   # Store durations in seconds
   # This makes the maths easier later
   # Use moment functions for display
-  buildIncidentHash: (incidentNumber) ->
+  buildIncidentHash: (incidentNumber, incidentHash, cb) ->
     incidentHash = {}
     # bot known times
-    incidentHash['start_time'] = this.getCurrentTime()
+    incidentHash['start_time'] = moment()
     incidentHash['ack_time']
     incidentHash['resolve_time'] = ""
     incidentHash['unacknowledge_time'] = ""
@@ -89,11 +114,12 @@ module.exports =
     incidentHash['status'] = "open"
     incidentHash['log'] = ""
     incidentHash
+    cb(incidentHash)
 
   updateTimestamp: (incidentNumber, type, timestamp, robot) ->
     if robot.brain.data.incidents[incidentNumber]
       incidentHash = robot.brain.data.incidents[incidentNumber]
-      incidentHash['type'] = timestamp
+      incidentHash[type] = timestamp
     else 
       log_message = "Issue setting timestamp for #{type} on incident #{incidentNumber} into hubot brain"
       console.log log_message
@@ -145,7 +171,7 @@ module.exports =
           #else
           #  robot.messageRoom incidentRoom, "Sorry, could not add transcript of room to PagerDuty as note."
 
-  checkIfIncidentOpen: (msg, incidentNumbers, statusFilter, robot, cb) ->
+  checkIfIncidentOpen: (msg, incidentNumber, statusFilter, robot, cb) ->
     pagerduty.getIncidents statusFilter, (err, incidents) ->
       if err?
         robot.emit 'error', err, msg
@@ -155,11 +181,11 @@ module.exports =
       foundIncidents = []
       for incident in incidents
         # FIXME this isn't working very consistently
-        if incidentNumbers.indexOf(incident.incident_number) > -1
+        if Number(incidentNumber) == Number(incident.incident_number)
           foundIncidents.push(incident)
 
       if foundIncidents.length == 0
-        robot.messageRoom incidentRoom, "Couldn't find incident(s) #{incidentNumbers}. Use `#{robot.name} pager incidents` for listing. \n Tracking can only be started on unresolved incidents."
+        robot.messageRoom incidentRoom, "Couldn't find incident(s) #{incidentNumber}. Use `#{robot.name} pager incidents` for listing. \n Tracking can only be started on unresolved incidents."
         cb null
         return
       else
